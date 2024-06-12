@@ -25,9 +25,9 @@ import javafx.stage.Stage;
 
 public class MainApp extends Application {
 
-	private static final int SIZE = 5;
+	private static final int SIZE = 3;
 	private static final int INNER_REMOVALS = 1;
-	private static final int VERTICES = 4;
+	private static final int VERTICES = 3;
 
 	private Pane pane;
 
@@ -126,7 +126,7 @@ public class MainApp extends Application {
 
 	}
 
-	private final Comparator<Polygon> comparatorSize = Comparator.comparing(Polygon::getArea);
+	private final Comparator<Polygon> comparatorSize = Comparator.comparing(Polygon::getTwiceArea);
 	private final Comparator<Polygon> comparatorRightAngle = Comparator.comparing(Polygon::countRightAngles);
 	private final Comparator<Polygon> comparatorDistinctSides = Comparator.comparing(Polygon::countDistinctSides);
 
@@ -163,9 +163,7 @@ public class MainApp extends Application {
 		tempPolygons.sort(comparator);
 
 		// pick off each polygon and its rotations
-		while (!tempPolygons.isEmpty())
-
-		{
+		while (!tempPolygons.isEmpty()) {
 
 			final Polygon polygon = tempPolygons.remove(0);
 			polygons.add(polygon);
@@ -182,7 +180,7 @@ public class MainApp extends Application {
 
 		}
 
-		polygons.forEach(System.out::println);
+		System.out.printf("%,d polygons found.\n", polygons.size());
 
 	}
 

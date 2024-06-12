@@ -89,15 +89,20 @@ public final class Polygon {
 	}
 
 	public double getArea() {
+		final double twiceArea = getTwiceArea();
+		return twiceArea / 2;
+	}
+
+	public int getTwiceArea() {
 
 		final List<Side> sides = getSides();
-		double accumulator = 0;
+		int accumulator = 0;
 		for (final Side side : sides) {
 			accumulator += side.getStart().getColumn() * side.getEnd().getRow()
 					- side.getStart().getRow() * side.getEnd().getColumn();
 		}
 
-		return MainApp.round(Math.abs(accumulator / 2));
+		return Math.abs(accumulator);
 
 	}
 
