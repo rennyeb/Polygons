@@ -97,4 +97,33 @@ public class SideTest {
 
 	}
 
+	@Test
+	public void intersects() {
+
+		final Side side1 = new Side(new Point(1, 1), new Point(1, 3));
+		final Side side2 = new Side(new Point(0, 2), new Point(2, 2));
+		assertThat(side1.intersects(side2), equalTo(true));
+		assertThat(side2.intersects(side1), equalTo(true));
+
+		// side3 is too low (its projection would have met)
+		final Side side3 = new Side(new Point(5, 2), new Point(7, 2));
+		assertThat(side1.intersects(side3), equalTo(false));
+		assertThat(side3.intersects(side1), equalTo(false));
+
+		// intersecting diagonals
+		final Side side4 = new Side(new Point(1, 1), new Point(5, 5));
+		final Side side5 = new Side(new Point(3, 2), new Point(2, 3));
+		assertThat(side4.intersects(side5), equalTo(true));
+		assertThat(side5.intersects(side4), equalTo(true));
+
+		// parallels
+		final Side side6 = new Side(new Point(1, 1), new Point(1, 3));
+		final Side side7 = new Side(new Point(3, 1), new Point(3, 3));
+		assertThat(side6.intersects(side7), equalTo(false));
+		assertThat(side7.intersects(side6), equalTo(false));
+
+		// TODO check coverage
+
+	}
+
 }

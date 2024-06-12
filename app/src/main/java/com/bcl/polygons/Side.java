@@ -74,4 +74,38 @@ public final class Side {
 
 				(point.getRow() - start.getRow()) * (end.getColumn() - start.getColumn());
 	}
+
+	public boolean intersects(final Side side) {
+
+		// TODO inline once working
+		final int x1a = this.start.getColumn();
+		final int y1a = this.start.getRow();
+		final int x2a = this.end.getColumn();
+		final int y2a = this.end.getRow();
+
+		final int x1b = side.start.getColumn();
+		final int y1b = side.start.getRow();
+		final int x2b = side.end.getColumn();
+		final int y2b = side.end.getRow();
+
+		// get the descriminator
+
+		final int descriminator = (x2b - x1b) * (y1a - y2a) - (x1a - x2a) * (y2b - y1b);
+		if (descriminator == 0) {
+			// lines are parallel, and so do not intersect. (The case that the lines overlap
+			// is dealt with outside this function)
+			return false;
+		}
+
+		final int dA = (y1b - y2b) * (x1a - x1b) + (x2b - x1b) * (y1a - y1b);
+		final int dB = (y1a - y2a) * (x1a - x1b) + (x2a - x1a) * (y1a - y1b);
+
+		if (descriminator > 0) {
+			// check both d values are in the range [0, descriminator]
+			return dA >= 0 && dA <= descriminator && dB >= 0 && dB <= descriminator;
+		} else {
+			// check both d values are in the range [descriminator, 0]
+			return dA >= descriminator && dA < 0 && dB >= descriminator && dB <= 0;
+		}
+	}
 }
