@@ -25,8 +25,7 @@ public final class Polygon {
 		sides = new ArrayList<>();
 		for (int i = 0; i < vertices.size(); i++) {
 			final Point vertex1 = vertices.get(i);
-			final int j = i + 1;
-			final int vertex2Index = j < vertices.size() ? j : 0;
+			final int vertex2Index = (i + 1) % vertices.size();
 			final Point vertex2 = vertices.get(vertex2Index);
 			sides.add(new Side(vertex1, vertex2));
 		}
@@ -35,8 +34,7 @@ public final class Polygon {
 		adjacentSides = new ArrayList<>();
 		for (int i = 0; i < sides.size(); i++) {
 			final Side side1 = sides.get(i);
-			final int j = i + 1;
-			final int side2Index = j < sides.size() ? j : 0;
+			final int side2Index = (i + 1) % sides.size();
 			final Side side2 = sides.get(side2Index);
 			adjacentSides.add(new AdjacentSides(side1, side2));
 		}
