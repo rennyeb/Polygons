@@ -25,8 +25,8 @@ import javafx.stage.Stage;
 
 public class MainApp extends Application {
 
-	private static final int SIZE = 3;
-	private static final int INNER_REMOVALS = 1;
+	private static final int SIZE = 7;
+	private static final int INNER_REMOVALS = 3;
 	private static final int VERTICES = 3;
 
 	private Pane pane;
@@ -47,9 +47,19 @@ public class MainApp extends Application {
 		primaryStage.setScene(new Scene(pane, 800, 600));
 
 		final Label countLabel = new Label();
-		countLabel.setLayoutX(500);
-		countLabel.setLayoutY(400);
+		countLabel.setLayoutX(cToX(SIZE + 1));
+		countLabel.setLayoutY(rToY(1));
 		pane.getChildren().add(countLabel);
+
+		final Label progressLabel = new Label();
+		progressLabel.setLayoutX(cToX(SIZE + 2));
+		progressLabel.setLayoutY(rToY(1));
+		pane.getChildren().add(progressLabel);
+
+		final Label areaLabel = new Label();
+		areaLabel.setLayoutX(cToX(SIZE + 3));
+		areaLabel.setLayoutY(rToY(1));
+		pane.getChildren().add(areaLabel);
 
 		final AtomicInteger polygonIndexAtomic = new AtomicInteger();
 
@@ -69,13 +79,18 @@ public class MainApp extends Application {
 
 					if (polygonIndex < polygons.size()) {
 
-						countLabel.setText(String.valueOf(polygonIndexAtomic.get()));
+						countLabel.setText(String.format("%d/%d", polygonIndexAtomic.get(), polygons.size()));
+						progressLabel.setText(String.format("%d%%", polygonIndexAtomic.get() * 100 / polygons.size()));
 
 						System.out.println(polygonIndex);
 
 						final Polygon polygon = polygons.get(polygonIndex);
 						System.out.println("Polygon: " + polygon);
-						System.out.println("Area: " + polygon.getArea());
+
+						final double area = polygon.getArea();
+						System.out.println("Area: " + area);
+
+						areaLabel.setText(String.valueOf(area));
 
 						// draw a circle on each vertex
 						polygon.getVertices().forEach(vertex -> lastShapes.add(getCircle(vertex, Color.BLACK, 30)));
@@ -94,8 +109,8 @@ public class MainApp extends Application {
 		};
 
 		final Button startButton = new Button();
-		startButton.setLayoutX(200);
-		startButton.setLayoutY(600);
+		startButton.setLayoutX(cToX(SIZE + 1));
+		startButton.setLayoutY(rToY(0));
 		startButton.setText("Start");
 		startButton.setOnAction(e -> {
 			timer.start();
@@ -103,8 +118,8 @@ public class MainApp extends Application {
 		pane.getChildren().add(startButton);
 
 		final Button stopButton = new Button();
-		stopButton.setLayoutX(300);
-		stopButton.setLayoutY(600);
+		stopButton.setLayoutX(cToX(SIZE + 2));
+		stopButton.setLayoutY(rToY(0));
 		stopButton.setText("Stop");
 		stopButton.setOnAction(e -> {
 			timer.stop();
@@ -112,8 +127,8 @@ public class MainApp extends Application {
 		pane.getChildren().add(stopButton);
 
 		final Button resetButton = new Button();
-		resetButton.setLayoutX(400);
-		resetButton.setLayoutY(600);
+		resetButton.setLayoutX(cToX(SIZE + 3));
+		resetButton.setLayoutY(rToY(0));
 		resetButton.setText("Reset");
 		resetButton.setOnAction(e -> {
 			polygonIndexAtomic.set(0);

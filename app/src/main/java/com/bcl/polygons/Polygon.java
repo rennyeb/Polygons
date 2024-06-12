@@ -6,44 +6,52 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 public final class Polygon {
 
 	private final List<Point> vertices;
-	private final SortedSet<Point> sortedVertices;
-	private final List<Side> sides;
-	private final List<AdjacentSides> adjacentSides;
+	private List<Side> sides;
+	private List<AdjacentSides> adjacentSides;
 
 	public Polygon(final List<Point> vertices) {
 		this.vertices = Collections.unmodifiableList(new ArrayList<>(vertices));
-		this.sortedVertices = new TreeSet<>(vertices);
 
-		// compute the sides
-		sides = new ArrayList<>();
-		for (int i = 0; i < vertices.size(); i++) {
-			final Point vertex1 = vertices.get(i);
-			final int vertex2Index = (i + 1) % vertices.size();
-			final Point vertex2 = vertices.get(vertex2Index);
-			sides.add(new Side(vertex1, vertex2));
+	}
+
+	List<AdjacentSides> getAdjacentSides() {
+		if (adjacentSides == null) {
+			// compute the adjacent sides
+			adjacentSides = new ArrayList<>();
+			for (int i = 0; i < getSides().size(); i++) {
+				final Side side1 = getSides().get(i);
+				final int side2Index = (i + 1) % sides.size();
+				final Side side2 = getSides().get(side2Index);
+				adjacentSides.add(new AdjacentSides(side1, side2));
+			}
+
 		}
+		return adjacentSides;
+	}
 
-		// compute the adjacent sides
-		adjacentSides = new ArrayList<>();
-		for (int i = 0; i < sides.size(); i++) {
-			final Side side1 = sides.get(i);
-			final int side2Index = (i + 1) % sides.size();
-			final Side side2 = sides.get(side2Index);
-			adjacentSides.add(new AdjacentSides(side1, side2));
+	List<Side> getSides() {
+		if (sides == null) {
+			// compute the sides
+			sides = new ArrayList<>();
+			for (int i = 0; i < vertices.size(); i++) {
+				final Point vertex1 = vertices.get(i);
+				final int vertex2Index = (i + 1) % vertices.size();
+				final Point vertex2 = vertices.get(vertex2Index);
+				sides.add(new Side(vertex1, vertex2));
+			}
+
 		}
-
+		return sides;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(sortedVertices);
+		return Objects.hash(new HashSet<>(sides));
 	}
 
 	@Override
@@ -68,15 +76,7 @@ public final class Polygon {
 	}
 
 	public long countRightAngles() {
-		return adjacentSides.stream().filter(AdjacentSides::isRightAngle).count();
-	}
-
-	List<AdjacentSides> getAdjacentSides() {
-		return adjacentSides;
-	}
-
-	List<Side> getSides() {
-		return sides;
+		return getAdjacentSides().stream().filter(AdjacentSides::isRightAngle).count();
 	}
 
 	public int countDistinctSides() {
@@ -106,16 +106,16 @@ public final class Polygon {
 
 	public boolean isValid() {
 
-		if (adjacentSides.stream().anyMatch(AdjacentSides::isParallel)) {
+		if (getAdjacentSides().stream().anyMatch(AdjacentSides::isParallel)) {
 			// Check no two adjoining sides are in the same direction
 			return false;
 		}
 
 		// check pairs of non-adjacent sides to check they do not overlap or intersect
-		for (int i = 0; i < sides.size(); i++) {
-			final Side side1 = sides.get(i);
-			for (int j = i + 1; j < sides.size(); j++) {
-				final Side side2 = sides.get(j);
+		for (int i = 0; i < getSides().size(); i++) {
+			final Side side1 = getSides().get(i);
+			for (int j = i + 1; j < getSides().size(); j++) {
+				final Side side2 = getSides().get(j);
 				if (side2.isNonAdjacentTo(side1)) {
 					if (side1.projectionContains(side2.getStart())) {
 						// overlaps
