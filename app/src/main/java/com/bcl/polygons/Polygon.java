@@ -108,12 +108,21 @@ public final class Polygon {
 			return false;
 		}
 
-		// TODO temp
-//		if (countRightAngles() < 4) {
-//			return false;
-//		}
-
-		// TODO check that no two distinct lines cross
+		// check pairs of non-adjacent sides to check they do not overlap or intersect
+		for (int i = 0; i < sides.size(); i++) {
+			final Side side1 = sides.get(i);
+			for (int j = i + 1; j < sides.size(); j++) {
+				final Side side2 = sides.get(j);
+				if (side2.isNonAdjacentTo(side1)) {
+					if (side1.projectionContains(side2.getStart())) {
+						// overlaps
+						return false;
+					} else if (side1.intersects(side2)) {
+						return false;
+					}
+				}
+			}
+		}
 
 		return true;
 	}

@@ -25,9 +25,9 @@ import javafx.stage.Stage;
 
 public class MainApp extends Application {
 
-	private static final int SIZE = 3;
+	private static final int SIZE = 5;
 	private static final int INNER_REMOVALS = 1;
-	private static final int VERTICES = 3;
+	private static final int VERTICES = 4;
 
 	private Pane pane;
 
