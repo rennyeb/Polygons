@@ -35,10 +35,6 @@ public final class Side {
 		}
 	}
 
-	// TODO whether a line crosses another
-
-	// TODO equality semantics that puts the
-
 	@Override
 	public String toString() {
 		return String.format("[%s - %s]", start, end);

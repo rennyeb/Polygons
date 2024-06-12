@@ -21,10 +21,6 @@ public final class Point implements Comparable<Point> {
 		this.column = MainApp.pToC(p);
 	}
 
-	public Point add(final Point point) {
-		return new Point(this.row + point.row, this.column + point.column);
-	}
-
 	public Point subtract(final Point point) {
 		return new Point(this.row - point.row, this.column - point.column);
 	}
@@ -60,15 +56,6 @@ public final class Point implements Comparable<Point> {
 	@Override
 	public String toString() {
 		return String.format("(r=%d,c=%d)", row, column);
-	}
-
-	// TODO move to line
-	public boolean parallelTo(final Point point) {
-		return row * point.column == point.row * column;
-	}
-
-	public boolean rightAngleTo(final Point point) {
-		return row * point.row + column * point.column == 0;
 	}
 
 }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -13,10 +12,11 @@ public final class Polygon {
 	private final List<Point> vertices;
 	private List<Side> sides;
 	private List<AdjacentSides> adjacentSides;
+	private Set<Side> sidesSet;
+	private Integer twiceArea;
 
 	public Polygon(final List<Point> vertices) {
 		this.vertices = Collections.unmodifiableList(new ArrayList<>(vertices));
-
 	}
 
 	List<AdjacentSides> getAdjacentSides() {
@@ -49,9 +49,16 @@ public final class Polygon {
 		return sides;
 	}
 
+	private Set<Side> getSidesSet() {
+		if (sidesSet == null) {
+			sidesSet = new HashSet<>(getSides());
+		}
+		return sidesSet;
+	}
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(new HashSet<>(sides));
+		return getSidesSet().hashCode();
 	}
 
 	@Override
@@ -60,7 +67,7 @@ public final class Polygon {
 			final Polygon polygon = (Polygon) obj;
 			// check if this polygon has the same sides (regardless of direction) as the
 			// polygon passed in
-			return new HashSet<>(sides).equals(new HashSet<>(polygon.sides));
+			return getSidesSet().equals(polygon.getSidesSet());
 		} catch (final ClassCastException | NullPointerException e) {
 			return false;
 		}
@@ -93,14 +100,17 @@ public final class Polygon {
 
 	public int getTwiceArea() {
 
-		final List<Side> sides = getSides();
-		int accumulator = 0;
-		for (final Side side : sides) {
-			accumulator += side.getStart().getColumn() * side.getEnd().getRow()
-					- side.getStart().getRow() * side.getEnd().getColumn();
-		}
+		if (twiceArea == null) {
 
-		return Math.abs(accumulator);
+			int accumulator = 0;
+			for (final Side side : getSides()) {
+				accumulator += side.getStart().getColumn() * side.getEnd().getRow()
+						- side.getStart().getRow() * side.getEnd().getColumn();
+			}
+
+			twiceArea = Math.abs(accumulator);
+		}
+		return twiceArea;
 
 	}
 
