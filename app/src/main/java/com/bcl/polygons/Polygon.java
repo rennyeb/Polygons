@@ -52,7 +52,9 @@ public final class Polygon {
 	public boolean equals(final Object obj) {
 		try {
 			final Polygon polygon = (Polygon) obj;
-			return this.sortedVertices.equals(polygon.sortedVertices);
+			// check if this polygon has the same sides (regardless of direction) as the
+			// polygon passed in
+			return new HashSet<>(sides).equals(new HashSet<>(polygon.sides));
 		} catch (final ClassCastException | NullPointerException e) {
 			return false;
 		}
