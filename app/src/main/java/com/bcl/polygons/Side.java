@@ -2,34 +2,49 @@ package com.bcl.polygons;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 public final class Side {
 
 	private final Point start;
 	private final Point end;
-	private final Point direction;
-	private final Set<Point> points = new HashSet<>();
+	private final Cached<Point> direction = Cached.of(() -> getEnd().subtract(getStart()));
+
+	private final Cached<Set<Point>> points = Cached.of(() -> {
+		final Set<Point> points = new HashSet<>();
+		points.add(getStart());
+		points.add(getEnd());
+		return points;
+	});
+
+	private final Cached<Double> length = Cached.of(() -> {
+		final double xLen = getStart().getColumn() - getEnd().getColumn();
+		final double yLen = getStart().getRow() - getEnd().getRow();
+		final double sumSquares = xLen * xLen + yLen * yLen;
+		final double dist = Math.sqrt(sumSquares);
+		return MainApp.round(dist);
+	});
 
 	public Side(final Point start, final Point end) {
 		this.start = start;
 		this.end = end;
-		this.direction = end.subtract(start);
-		points.add(start);
-		points.add(end);
+
+	}
+
+	private Set<Point> getPoints() {
+		return points.get();
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(points);
+		return points.get().hashCode();
 	}
 
 	@Override
 	public boolean equals(final Object obj) {
 		try {
 			final Side side = (Side) obj;
-			return this.points.equals(side.points);
+			return this.getPoints().equals(side.getPoints());
 		} catch (final ClassCastException | NullPointerException e) {
 			return false;
 		}
@@ -41,11 +56,7 @@ public final class Side {
 	}
 
 	public double length() {
-		final double xLen = start.getColumn() - end.getColumn();
-		final double yLen = start.getRow() - end.getRow();
-		final double sumSquares = xLen * xLen + yLen * yLen;
-		final double dist = Math.sqrt(sumSquares);
-		return MainApp.round(dist);
+		return length.get();
 	}
 
 	public Point getStart() {
@@ -57,7 +68,7 @@ public final class Side {
 	}
 
 	public Point getDirection() {
-		return direction;
+		return direction.get();
 	}
 
 	public boolean isNonAdjacentTo(final Side side) {
@@ -84,10 +95,10 @@ public final class Side {
 		final int x2b = side.end.getColumn();
 		final int y2b = side.end.getRow();
 
-		// get the descriminator
+		// get the discriminator
 
-		final int descriminator = (x2b - x1b) * (y1a - y2a) - (x1a - x2a) * (y2b - y1b);
-		if (descriminator == 0) {
+		final int discriminator = (x2b - x1b) * (y1a - y2a) - (x1a - x2a) * (y2b - y1b);
+		if (discriminator == 0) {
 			// lines are parallel, and so do not intersect. (The case that the lines overlap
 			// is dealt with outside this function)
 			return false;
@@ -96,12 +107,12 @@ public final class Side {
 		final int dA = (y1b - y2b) * (x1a - x1b) + (x2b - x1b) * (y1a - y1b);
 		final int dB = (y1a - y2a) * (x1a - x1b) + (x2a - x1a) * (y1a - y1b);
 
-		if (descriminator > 0) {
-			// check both d values are in the range [0, descriminator]
-			return dA >= 0 && dA <= descriminator && dB >= 0 && dB <= descriminator;
+		if (discriminator > 0) {
+			// check both d values are in the range [0, discriminator]
+			return dA >= 0 && dA <= discriminator && dB >= 0 && dB <= discriminator;
 		} else {
-			// check both d values are in the range [descriminator, 0]
-			return dA >= descriminator && dA < 0 && dB >= descriminator && dB <= 0;
+			// check both d values are in the range [discriminator, 0]
+			return dA >= discriminator && dA < 0 && dB >= discriminator && dB <= 0;
 		}
 	}
 }
