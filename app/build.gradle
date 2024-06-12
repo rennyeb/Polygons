@@ -15,6 +15,10 @@ dependencies {
     implementation 'com.google.guava:guava:31.1-jre'
     implementation 'org.openjfx:javafx-controls:17'
     implementation 'org.openjfx:javafx-fxml:17'
+	
+	// https://mvnrepository.com/artifact/org.hamcrest/hamcrest
+	testImplementation 'org.hamcrest:hamcrest:2.2'
+
 }
 
 javafx {
