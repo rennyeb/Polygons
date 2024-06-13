@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
@@ -27,9 +26,12 @@ import javafx.stage.Stage;
 public class MainApp extends Application {
 
 	private static final int SIZE = // 3;
-			7;
-	private static final int INNER_REMOVALS = // 1;
+			// 7;
 			3;
+	private static final int INNER_REMOVALS =
+	// 1;
+//			3;
+			1;
 	private static final int VERTICES = 3;
 
 	private static final int POINTS = SIZE * SIZE;
@@ -149,6 +151,7 @@ public class MainApp extends Application {
 	private final Comparator<Polygon> comparatorSize = Comparator.comparing(Polygon::getTwiceArea);
 	private final Comparator<Polygon> comparatorRightAngle = Comparator.comparing(Polygon::countRightAngles);
 	private final Comparator<Polygon> comparatorDistinctSides = Comparator.comparing(Polygon::countDistinctSides);
+	private final Comparator<Polygon> comparatorVertices = new Comparator<Polygon>() {
 
 		@Override
 		public int compare(final Polygon o1, final Polygon o2) {
@@ -203,35 +206,29 @@ public class MainApp extends Application {
 		choosePoints(pointLists, Collections.emptyList(), points);
 
 		// work out the polygons
-		final List<Polygon> tempPolygons = new ArrayList<>();
-		// TODO put polygons in point order
-		// TODO broken
-//		final SortedSet<Polygon> tempPolygons = new TreeSet<>(comparator);
-		// TODO don't need both sets
-		final Set<Polygon> tempPolygonSet = new HashSet<>();
+
+		// Track Polygon equality - equals takes into account two Polygons where the
+		// vertices of one are clockwise but the others are anticlockwise; the
+		// comparator doesn't
+		final Set<Polygon> tempPolygonsSet = new HashSet<>();
 
 		for (final List<Point> pointList : pointLists) {
 			final Polygon polygon = new Polygon(pointList);
 			if (polygon.isValid()) {
-				if (tempPolygonSet.add(polygon)) {
-					tempPolygons.add(polygon);
-				}
+				tempPolygonsSet.add(polygon);
 			}
 		}
 
 		// sort into order
-		tempPolygons.sort(comparator);
-
-		final Set<Polygon> tempPolygonsSet = new HashSet<>(tempPolygons);
-		final SortedSet<Polygon> tempPolygonsSortedSet = new TreeSet<>(comparator);
-		tempPolygonsSortedSet.addAll(tempPolygons);
+		final SortedSet<Polygon> tempPolygons = new TreeSet<>(comparator);
+		tempPolygons.addAll(tempPolygonsSet);
 
 		// pick off each polygon and its rotations
 		while (!tempPolygons.isEmpty()) {
 
-			final Iterator<Polygon> iterator = tempPolygons.iterator();
-			final Polygon polygon = iterator.next();
-			iterator.remove();
+			final Polygon polygon = tempPolygons.first();
+			tempPolygons.remove(polygon);
+
 			polygons.add(polygon);
 
 			Polygon rotatedPolygon = polygon;
