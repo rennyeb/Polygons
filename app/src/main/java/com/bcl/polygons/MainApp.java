@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
@@ -25,9 +26,13 @@ import javafx.stage.Stage;
 
 public class MainApp extends Application {
 
-	private static final int SIZE = 7;
-	private static final int INNER_REMOVALS = 3;
+	private static final int SIZE = // 3;
+			7;
+	private static final int INNER_REMOVALS = // 1;
+			3;
 	private static final int VERTICES = 3;
+
+	private static final int POINTS = SIZE * SIZE;
 
 	private Pane pane;
 
@@ -145,24 +150,64 @@ public class MainApp extends Application {
 	private final Comparator<Polygon> comparatorRightAngle = Comparator.comparing(Polygon::countRightAngles);
 	private final Comparator<Polygon> comparatorDistinctSides = Comparator.comparing(Polygon::countDistinctSides);
 
+		@Override
+		public int compare(final Polygon o1, final Polygon o2) {
+			final List<Point> vertices1 = o1.getVertices();
+			final List<Point> vertices2 = o2.getVertices();
+
+			final int lowestPointOffest1 = getLowestPointOffset(vertices1);
+			final int lowestPointOffest2 = getLowestPointOffset(vertices2);
+
+			for (int i = 0; i < VERTICES; i++) {
+				final Point vertex1 = vertices1.get((i + lowestPointOffest1) % VERTICES);
+				final Point vertex2 = vertices2.get((i + lowestPointOffest2) % VERTICES);
+
+				final int result = vertex1.compareTo(vertex2);
+				if (result != 0) {
+					return result;
+				}
+
+			}
+			// same
+			return 0;
+		}
+
+		private int getLowestPointOffset(final List<Point> vertices) {
+			int lowestPointOffset = 0;
+			for (int i = 1; i < VERTICES; i++) {
+				if (vertices.get(lowestPointOffset).compareTo(vertices.get(i)) > 0) {
+					// vertex as i is lower
+					lowestPointOffset = i;
+				}
+			}
+			return lowestPointOffset;
+		}
+	};
+
 	private final Comparator<Polygon> comparator = comparatorSize.reversed()
-			.thenComparing(comparatorRightAngle.reversed()).thenComparing(comparatorDistinctSides);
+			.thenComparing(comparatorRightAngle.reversed()).thenComparing(comparatorDistinctSides)
+			.thenComparing(comparatorVertices);
 
 	private void populatePolygons() {
 
 		final SortedSet<Point> points = new TreeSet<>();
-		for (int i = 0; i < SIZE * SIZE; i++) {
+		for (int i = 0; i < POINTS; i++) {
 			final Point point = new Point(i);
 			if (validPoint(point)) {
 				points.add(point);
 			}
 		}
 
+		// TODO change to return a list of polygons instead
 		final List<List<Point>> pointLists = new ArrayList<>();
 		choosePoints(pointLists, Collections.emptyList(), points);
 
 		// work out the polygons
 		final List<Polygon> tempPolygons = new ArrayList<>();
+		// TODO put polygons in point order
+		// TODO broken
+//		final SortedSet<Polygon> tempPolygons = new TreeSet<>(comparator);
+		// TODO don't need both sets
 		final Set<Polygon> tempPolygonSet = new HashSet<>();
 
 		for (final List<Point> pointList : pointLists) {
@@ -177,10 +222,16 @@ public class MainApp extends Application {
 		// sort into order
 		tempPolygons.sort(comparator);
 
+		final Set<Polygon> tempPolygonsSet = new HashSet<>(tempPolygons);
+		final SortedSet<Polygon> tempPolygonsSortedSet = new TreeSet<>(comparator);
+		tempPolygonsSortedSet.addAll(tempPolygons);
+
 		// pick off each polygon and its rotations
 		while (!tempPolygons.isEmpty()) {
 
-			final Polygon polygon = tempPolygons.remove(0);
+			final Iterator<Polygon> iterator = tempPolygons.iterator();
+			final Polygon polygon = iterator.next();
+			iterator.remove();
 			polygons.add(polygon);
 
 			Polygon rotatedPolygon = polygon;
