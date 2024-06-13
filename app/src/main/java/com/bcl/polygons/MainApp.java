@@ -28,12 +28,12 @@ public class MainApp extends Application {
 
 	private static final int SIZE = // 3;
 			// 7;
-			5;
+			3;
 	private static final int INNER_REMOVALS =
 	// 1;
 //			3;
-			3;
-	private static final int VERTICES = 6;
+			1;
+	private static final int VERTICES = 3;
 
 	private static final int POINTS = SIZE * SIZE;
 
@@ -239,23 +239,28 @@ public class MainApp extends Application {
 	private void identifyCandidatePolygons(final Collection<Polygon> polygons, final List<Point> chosenPoints,
 			final SortedSet<Point> availablePoints) {
 
+		final Polygon polygon = new Polygon(chosenPoints);
 		if (chosenPoints.size() == VERTICES) {
-			final Polygon polygon = new Polygon(chosenPoints);
 			// validity is expensive to compute - only bother if the polygon is not already
 			// present in the collection
 			if (!polygons.contains(polygon) && polygon.isValid()) {
 				polygons.add(polygon);
 			}
 		} else {
-			for (final Point availablePoint : availablePoints) {
-				final List<Point> nextChosenPoints = new ArrayList<>(chosenPoints);
-				nextChosenPoints.add(availablePoint);
 
-				final SortedSet<Point> nextAvailablePoints = new TreeSet<>(availablePoints);
-				nextAvailablePoints.remove(availablePoint);
+			// check if the points so far form a valid (smaller) polygon - only recurse if
+			// so
+			if (chosenPoints.size() < 3 || polygon.isValid()) {
+				for (final Point availablePoint : availablePoints) {
+					final List<Point> nextChosenPoints = new ArrayList<>(chosenPoints);
+					nextChosenPoints.add(availablePoint);
 
-				// recurse
-				identifyCandidatePolygons(polygons, nextChosenPoints, nextAvailablePoints);
+					final SortedSet<Point> nextAvailablePoints = new TreeSet<>(availablePoints);
+					nextAvailablePoints.remove(availablePoint);
+
+					// recurse
+					identifyCandidatePolygons(polygons, nextChosenPoints, nextAvailablePoints);
+				}
 			}
 		}
 	}
