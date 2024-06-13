@@ -1,6 +1,7 @@
 package com.bcl.polygons;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -27,12 +28,12 @@ public class MainApp extends Application {
 
 	private static final int SIZE = // 3;
 			// 7;
-			3;
+			5;
 	private static final int INNER_REMOVALS =
 	// 1;
 //			3;
-			1;
-	private static final int VERTICES = 3;
+			3;
+	private static final int VERTICES = 6;
 
 	private static final int POINTS = SIZE * SIZE;
 
@@ -201,40 +202,28 @@ public class MainApp extends Application {
 			}
 		}
 
-		// TODO change to return a list of polygons instead
-		final List<List<Point>> pointLists = new ArrayList<>();
-		choosePoints(pointLists, Collections.emptyList(), points);
-
-		// work out the polygons
-
 		// Track Polygon equality - equals takes into account two Polygons where the
 		// vertices of one are clockwise but the others are anticlockwise; the
 		// comparator doesn't
-		final Set<Polygon> tempPolygonsSet = new HashSet<>();
-
-		for (final List<Point> pointList : pointLists) {
-			final Polygon polygon = new Polygon(pointList);
-			if (polygon.isValid()) {
-				tempPolygonsSet.add(polygon);
-			}
-		}
+		final Set<Polygon> polygonsSet = new HashSet<>();
+		identifyCandidatePolygons(polygonsSet, Collections.emptyList(), points);
 
 		// sort into order
-		final SortedSet<Polygon> tempPolygons = new TreeSet<>(comparator);
-		tempPolygons.addAll(tempPolygonsSet);
+		final SortedSet<Polygon> polygonsSorted = new TreeSet<>(comparator);
+		polygonsSorted.addAll(polygonsSet);
 
 		// pick off each polygon and its rotations
-		while (!tempPolygons.isEmpty()) {
+		while (!polygonsSorted.isEmpty()) {
 
-			final Polygon polygon = tempPolygons.first();
-			tempPolygons.remove(polygon);
+			final Polygon polygon = polygonsSorted.first();
+			polygonsSorted.remove(polygon);
 
 			polygons.add(polygon);
 
 			Polygon rotatedPolygon = polygon;
 			while (true) {
 				rotatedPolygon = rotatePolygon(rotatedPolygon);
-				if (!tempPolygons.remove(rotatedPolygon)) {
+				if (!polygonsSorted.remove(rotatedPolygon)) {
 					// no more rotations
 					break;
 				}
@@ -247,11 +236,16 @@ public class MainApp extends Application {
 
 	}
 
-	private void choosePoints(final List<List<Point>> chosenPointLists, final List<Point> chosenPoints,
+	private void identifyCandidatePolygons(final Collection<Polygon> polygons, final List<Point> chosenPoints,
 			final SortedSet<Point> availablePoints) {
 
 		if (chosenPoints.size() == VERTICES) {
-			chosenPointLists.add(chosenPoints);
+			final Polygon polygon = new Polygon(chosenPoints);
+			// validity is expensive to compute - only bother if the polygon is not already
+			// present in the collection
+			if (!polygons.contains(polygon) && polygon.isValid()) {
+				polygons.add(polygon);
+			}
 		} else {
 			for (final Point availablePoint : availablePoints) {
 				final List<Point> nextChosenPoints = new ArrayList<>(chosenPoints);
@@ -261,7 +255,7 @@ public class MainApp extends Application {
 				nextAvailablePoints.remove(availablePoint);
 
 				// recurse
-				choosePoints(chosenPointLists, nextChosenPoints, nextAvailablePoints);
+				identifyCandidatePolygons(polygons, nextChosenPoints, nextAvailablePoints);
 			}
 		}
 	}
