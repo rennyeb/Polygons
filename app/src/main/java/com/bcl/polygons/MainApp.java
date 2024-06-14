@@ -28,11 +28,11 @@ public class MainApp extends Application {
 
 	private static final int SIZE = // 3;
 			// 7;
-			3;
+			7;
 	private static final int INNER_REMOVALS =
 	// 1;
 //			3;
-			1;
+			3;
 	private static final int VERTICES = 3;
 
 	private static final int POINTS = SIZE * SIZE;
@@ -45,7 +45,11 @@ public class MainApp extends Application {
 	@Override
 	public void start(final Stage primaryStage) throws Exception {
 
+		final long start = System.currentTimeMillis();
 		populatePolygons();
+		final long end = System.currentTimeMillis();
+		final long elapsed = end - start;
+		System.out.printf("populatePolygons took %,d ms\n", elapsed);
 
 		pane = new Pane();
 
