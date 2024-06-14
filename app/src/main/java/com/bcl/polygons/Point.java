@@ -10,6 +10,8 @@ public final class Point implements Comparable<Point> {
 
 	private final int row;
 	private final int column;
+	
+    private Cached<Integer> hashCode = Cached.of(() -> Objects.hash(getRow(), getColumn()));
 
 	public Point(final int row, final int column) {
 		this.row = row;
@@ -27,7 +29,7 @@ public final class Point implements Comparable<Point> {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(row, column);
+		return hashCode.get();
 	}
 
 	@Override
